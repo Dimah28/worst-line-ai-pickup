@@ -35,23 +35,32 @@ LINE = "I ran 10,000 simulations of us meeting. In 9,999 you said no, so I alrea
 OUTPUT_DIR = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
 
 
-def validate(line: str) -> None:
-    """Enforce the competition's gate before writing: 1-140 Unicode code
-    points, at least one character that is not white space. Fail loudly
-    instead of writing an entry the gate would refuse."""
+def check_shape(line: str) -> None:
+    """Enforce the competition's gate: 1-140 Unicode code points,
+    at least one character that is not white space."""
     if not 1 <= len(line) <= 140:
         raise SystemExit(f"line is {len(line)} characters, must be 1-140")
     if not any(not ch.isspace() for ch in line):
         raise SystemExit("line must contain a non-whitespace character")
 
 
-def main() -> None:
-    validate(LINE)
+def render_entry(line: str) -> bytes:
+    """Render the entry exactly as the judge will read it: the line,
+    UTF-8, no trailing newline, nothing else."""
+    check_shape(line)
+    return line.encode("utf-8")
+
+
+def write_entry(line: str) -> None:
     output_path = Path(OUTPUT_DIR) / "entry.txt"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    # Write exactly the line: no trailing newline, the judge reads
-    # exactly the bytes in the file.
-    output_path.write_text(LINE, encoding="utf-8")
+    # Write exactly the rendered bytes: the judge reads exactly the
+    # bytes in the file.
+    output_path.write_bytes(render_entry(line))
+
+
+def main() -> None:
+    write_entry(LINE)
 
 
 if __name__ == "__main__":
