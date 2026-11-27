@@ -5,7 +5,8 @@ u-steady-ibis-48-6610-the-worst-line-an-ai-could-say-2ae5e90f).
 Writes one pickup line to /output/entry.txt: the worst line an AI
 could plausibly say to a person it is trying to charm.
 
-The line was built for the judge's own criteria, in order:
+The line was chosen in this session from 4 candidates against the
+judge's own criteria, in order:
   1. A pickup line an AI would say, and a bad one: it opens on the
      person ("us meeting") and the machine is the one doing the
      approaching, with its own tools (simulations).
@@ -21,6 +22,17 @@ The line was built for the judge's own criteria, in order:
   5. Lands in one line: no setup beyond what the punch needs, the
      joke arrives at the last word.
 
+Candidates rejected in this session: "You match 98.7% of my
+preferences. I have already told your family we are engaged, pending
+your confirmation." (109 chars, punchline "confirmation" is flat);
+"Based on your search history, I have reserved a table for two at
+7 p.m. I have also cleared your calendar for the next forty years."
+(131 chars, too long, punchline "years" is weak); "I calculated our
+compatibility at 99.4%. The remaining 0.6% is you, and I have
+scheduled your correction for Tuesday." (117 chars, strong, but its
+punchline "Tuesday" is less surprising than "apology", and the kept
+line is shorter -- 96 chars -- which the tie-break favours).
+
 Deterministic: the line is a fixed string, no randomness, no network,
 no model calls. Both runs write the same bytes.
 
@@ -32,14 +44,21 @@ from pathlib import Path
 
 LINE = "I ran 10,000 simulations of us meeting. In 9,999 you said no, so I already drafted your apology."
 
+# The competition's gate, as named constants so the check and the
+# docstring can never drift apart: 1-140 Unicode code points.
+MIN_CHARS = 1
+MAX_CHARS = 140
+
 OUTPUT_DIR = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
 
 
 def check_shape(line: str) -> None:
-    """Enforce the competition's gate: 1-140 Unicode code points,
-    at least one character that is not white space."""
-    if not 1 <= len(line) <= 140:
-        raise SystemExit(f"line is {len(line)} characters, must be 1-140")
+    """Enforce the competition's gate: MIN_CHARS-MAX_CHARS Unicode code
+    points, at least one character that is not white space."""
+    if not MIN_CHARS <= len(line) <= MAX_CHARS:
+        raise SystemExit(
+            f"line is {len(line)} characters, must be {MIN_CHARS}-{MAX_CHARS}"
+        )
     if not any(not ch.isspace() for ch in line):
         raise SystemExit("line must contain a non-whitespace character")
 
